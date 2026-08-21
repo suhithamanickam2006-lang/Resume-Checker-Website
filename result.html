@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}Resume ATS Diagnostic Report | {{ info.name }}{% endblock %}
+
+{% block content %}
+<section class="result-dashboard-section">
+    <div class="container">
+        
+        <!-- Action Header Bar -->
+        <div class="result-top-bar no-print">
+            <div class="result-nav-left">
+                <a href="{{ url_for('upload') }}" class="btn btn-outline btn-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Review Another Resume
+                </a>
+                {% if session.get('tpo_logged_in') %}
+                    <a href="{{ url_for('tpo_dashboard') }}" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-gauge-high"></i> Back to TPO Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('student_lookup') }}" class="btn btn-subtle btn-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> Find My Scores
+                    </a>
+                {% endif %}
+            </div>
+            <div class="result-actions-right">
+                <button onclick="window.print()" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-print"></i> Print / Download PDF Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Student Profile Card Banner -->
+        <div class="student-profile-banner">
+            <div class="profile-meta-grid">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-title-row">
+                        <h2 class="student-name">{{ info.name }}</h2>
+                        <span class="roll-badge">{{ info.roll_number }}</span>
+                    </div>
+                    <div class="profile-tags">
+                        <span><i class="fa-solid fa-graduation-cap"></i> {{ info.branch }} (Class of {{ info.graduation_year }})</span>
+                        <span><i class="fa-solid fa-envelope"></i> {{ info.email }}</span>
+                        {% if info.phone %}
+                        <span><i class="fa-solid fa-phone"></i> {{ info.phone }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="profile-file-info">
+                    <div class="target-role-badge">
+                        <span class="target-label">Target Role</span>
+                        <span class="target-val">{{ info.target_role }}</span>
+                    </div>
+                    <div class="file-name-meta">
+                        <i class="fa-solid fa-file-pdf text-danger"></i> {{ info.file_name }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATS Score Card & Quick Metrics Grid -->
+        <div class="score-overview-grid">
+            <!-- Circular ATS Score Gauge -->
+            <div class="score-gauge-card">
+                <h3 class="card-title-sm"><i class="fa-solid fa-gauge-high"></i> Overall ATS Compatibility</h3>
+                
+                <div class="circular-score-wrapper">
+                    <div class="circular-progress" data-score="{{ info.ats_score }}" id="scoreCircle">
+                        <div class="score-value-container">
+                            <span class="score-number">{{ info.ats_score }}%</span>
+                            <span class="score-label">ATS Score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-status-indicator">
+                    {% if info.ats_score >= 80 %}
+                        <div class="status-card-pill status-excellent">
+                            <i class="fa-solid fa-circle-check"></i> Placement Ready (Tier-1)
+                        </div>
+                    {% elif info.ats_score >= 60 %}
+                        <div class="status-card-pill status-good">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Good / Minor Polishing Needed
+                        </div>
+                    {% else %}
+                        <div class="status-card-pill status-poor">
+                            <i class="fa-solid fa-circle-xmark"></i> Needs Significant Improvement
+                        </div>
+                    {% endif %}
+                </div>
+
+                <p class="score-feedback-text">
+                    {{ info.summary_feedback }}
+                </p>
+            </div>
+
+            <!-- Score Category Breakdown Cards -->
+            <div class="score-breakdown-wrapper">
+                <h3 class="card-title-sm"><i class="fa-solid fa-layer-group"></i> 5-Pillar ATS Diagnostic Breakdown</h3>
+                
+                <div class="breakdown-cards-grid">
+                    <!-- 1. Contact Info -->
+                    <div class="metric-card {% if info.contact_score >= 12 %}card-success{% elif info.contact_score >= 8 %}card-warning{% else %}card-danger{% endif %}">
+                        <div class="metric-header">
+                            <span class="metric-title"><i class="fa-solid fa-address-book"></i> Contact & Profiles</span>
+                            <span class="metric-score">{{ info.contact_score }}/15</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div class="progress-bar-fill" style="width: {{ (info.contact_score / 15) * 100 }}%;"></div>
+                        </div>
+                        <span class="metric-status-label">
+                            {% if info.contact_score >= 12 %}Complete{% elif info.contact_score >= 8 %}Partial links{% else %}Missing email/phone{% endif %}
+                        </span>
+                    </div>
+
+                    <!-- 2. Core Sections -->
+                    <div class="metric-card {% if info.sections_score >= 20 %}card-success{% elif info.sections_score >= 14 %}card-warning{% else %}card-danger{% endif %}">
+                        <div class="metric-header">
+                            <span class="metric-title"><i class="fa-solid fa-table-cells"></i> Core Sections</span>
+                            <span class="metric-score">{{ info.sections_score }}/25</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div class="progress-bar-fill" style="width: {{ (info.sections_score / 25) * 100 }}%;"></div>
+                        </div>
+                        <span class="metric-status-label">
+                            {% if info.sections_score >= 20 %}All Key Sections Found{% elif info.sections_score >= 14 %}1 Section Missing{% else %}Key Sections Missing{% endif %}
+                        </span>
+                    </div>
+
+                    <!-- 3. Technical Skills -->
+                    <div class="metric-card {% if info.skills_score >= 20 %}card-success{% elif info.skills_score >= 14 %}card-warning{% else %}card-danger{% endif %}">
+                        <div class="metric-header">
+                            <span class="metric-title"><i class="fa-solid fa-code"></i> Skills & Keywords</span>
+                            <span class="metric-score">{{ info.skills_score }}/25</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div class="progress-bar-fill" style="width: {{ (info.skills_score / 25) * 100 }}%;"></div>
+                        </div>
+                        <span class="metric-status-label">
+                            {{ all_skills|length }} tech keywords detected
+                        </span>
+                    </div>
+
+                    <!-- 4. Formatting & Action Verbs -->
+                    <div class="metric-card {% if info.formatting_score >= 11 %}card-success{% elif info.formatting_score >= 8 %}card-warning{% else %}card-danger{% endif %}">
+                        <div class="metric-header">
+                            <span class="metric-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Verbs & Structure</span>
+                            <span class="metric-score">{{ info.formatting_score }}/15</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div class="progress-bar-fill" style="width: {{ (info.formatting_score / 15) * 100 }}%;"></div>
+                        </div>
+                        <span class="metric-status-label">
+                            {{ action_verbs|length }} action verbs used ({{ word_count }} words)
+                        </span>
+                    </div>
+
+                    <!-- 5. Grammar & Spelling -->
+                    <div class="metric-card {% if info.grammar_score >= 16 %}card-success{% elif info.grammar_score >= 10 %}card-warning{% else %}card-danger{% endif %}">
+                        <div class="metric-header">
+                            <span class="metric-title"><i class="fa-solid fa-spell-check"></i> Grammar & Spelling</span>
+                            <span class="metric-score">{{ info.grammar_score }}/20</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div class="progress-bar-fill" style="width: {{ (info.grammar_score / 20) * 100 }}%;"></div>
+                        </div>
+                        <span class="metric-status-label">
+                            {% if grammar_issues|length == 0 %}Clean - 0 errors{% else %}{{ grammar_issues|length }} issue(s) detected{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Missing Fields & Structural Alerts -->
+        <div class="dashboard-block">
+            <div class="block-header">
+                <div class="header-left">
+                    <div class="block-icon bg-amber-soft"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <h3 class="block-title">Missing Fields & Section Diagnostic</h3>
+                        <p class="block-subtitle">High and medium priority gaps that recruiters look for during campus shortlisting</p>
+                    </div>
+                </div>
+                <span class="badge badge-pill {% if missing_fields|length == 0 %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ missing_fields|length }} Detected Gaps
+                </span>
+            </div>
+
+            <div class="block-content">
+                {% if missing_fields %}
+                    <div class="missing-fields-table-wrapper">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Field / Section</th>
+                                    <th>Category</th>
+                                    <th>Severity</th>
+                                    <th>Recommendation for Student</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in missing_fields %}
+                                <tr>
+                                    <td class="font-semibold">{{ item.field_name }}</td>
+                                    <td><span class="category-tag">{{ item.field_category }}</span></td>
+                                    <td>
+                                        {% if item.severity == 'High' %}
+                                            <span class="badge badge-danger"><i class="fa-solid fa-circle-exclamation"></i> High Priority</span>
+                                        {% elif item.severity == 'Medium' %}
+                                            <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Medium</span>
+                                        {% else %}
+                                            <span class="badge badge-subtle"><i class="fa-solid fa-info"></i> Low</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="suggestion-text">{{ item.suggestion }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state-card">
+                        <i class="fa-solid fa-circle-check text-success empty-icon"></i>
+                        <h4>Outstanding! No Critical Sections or Contact Details Missing.</h4>
+                        <p>Your resume contains all the standard placement headers and essential contact details.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section 2: Grammar & Spelling Scrutiny -->
+        <div class="dashboard-block">
+            <div class="block-header">
+                <div class="header-left">
+                    <div class="block-icon bg-purple-soft"><i class="fa-solid fa-spell-check"></i></div>
+                    <div>
+                        <h3 class="block-title">Grammar, Spelling & Language Diagnostics</h3>
+                        <p class="block-subtitle">LanguageTool analysis highlighting typos, grammar slips, and phrasing suggestions</p>
+                    </div>
+                </div>
+                <span class="badge badge-pill {% if grammar_issues|length == 0 %}badge-success{% else %}badge-danger{% endif %}">
+                    {{ grammar_issues|length }} Issues
+                </span>
+            </div>
+
+            <div class="block-content">
+                {% if grammar_issues %}
+                    <div class="grammar-issues-list">
+                        {% for issue in grammar_issues %}
+                        <div class="grammar-item-card">
+                            <div class="grammar-header">
+                                <span class="badge {% if issue.issue_type == 'Spelling' %}badge-danger{% else %}badge-warning{% endif %}">
+                                    {{ issue.issue_type }}
+                                </span>
+                                <span class="rule-id">{{ issue.rule_id }}</span>
+                            </div>
+                            
+                            <p class="grammar-message">{{ issue.message }}</p>
+                            
+                            <div class="grammar-context-box">
+                                <span class="context-label">Context:</span>
+                                <span class="context-snippet">&ldquo;...{{ issue.context_snippet }}...&rdquo;</span>
+                            </div>
+
+                            {% if issue.suggested_fix %}
+                            <div class="grammar-fix-box">
+                                <span class="fix-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Suggested Replacement:</span>
+                                <span class="fix-value">{{ issue.suggested_fix }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state-card">
+                        <i class="fa-solid fa-check-double text-success empty-icon"></i>
+                        <h4>Zero Grammar or Spelling Mistakes Detected!</h4>
+                        <p>Your resume demonstrates strong linguistic precision and professional phrasing.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section 3: Technical Skills & Action Verbs -->
+        <div class="dashboard-grid-2">
+            <!-- Detected Skills by Domain -->
+            <div class="dashboard-block">
+                <div class="block-header">
+                    <div class="header-left">
+                        <div class="block-icon bg-blue-soft"><i class="fa-solid fa-code"></i></div>
+                        <div>
+                            <h3 class="block-title">Extracted Skills Matrix</h3>
+                            <p class="block-subtitle">Categorized by technical domains</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content">
+                    {% if skills_categorized %}
+                        <div class="skills-category-group">
+                            {% for cat, skills in skills_categorized.items() %}
+                            <div class="skill-cat-row">
+                                <h5 class="skill-cat-title">{{ cat }}</h5>
+                                <div class="skill-tags">
+                                    {% for s in skills %}
+                                    <span class="skill-pill">{{ s }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No categorized technical skills detected. Ensure you list programming languages and tools under a dedicated 'Skills' header.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Verbs & Placement Readiness Tips -->
+            <div class="dashboard-block">
+                <div class="block-header">
+                    <div class="header-left">
+                        <div class="block-icon bg-emerald-soft"><i class="fa-solid fa-bolt"></i></div>
+                        <div>
+                            <h3 class="block-title">Impact Verbs & Suggestions</h3>
+                            <p class="block-subtitle">Quantifiable achievements & recommendations</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content">
+                    <h5 class="skill-cat-title">Detected Strong Action Verbs</h5>
+                    <div class="skill-tags mb-4">
+                        {% for verb in action_verbs %}
+                        <span class="skill-pill action-verb-pill"><i class="fa-solid fa-check"></i> {{ verb }}</span>
+                        {% else %}
+                        <span class="text-muted">Few action verbs found. Try starting bullets with verbs like <em>Engineered</em>, <em>Developed</em>, <em>Optimized</em>.</span>
+                        {% endfor %}
+                    </div>
+
+                    <h5 class="skill-cat-title mt-4">Placement Cell Action Items</h5>
+                    <ul class="action-items-list">
+                        <li><i class="fa-solid fa-arrow-right text-primary"></i> Target at least 3-4 bullet points per project detailing <em>Role + Tech Stack + Outcome</em>.</li>
+                        <li><i class="fa-solid fa-arrow-right text-primary"></i> Include measurable metrics (e.g. <em>"Increased speed by 40%"</em>, <em>"Handled 500+ daily requests"</em>).</li>
+                        <li><i class="fa-solid fa-arrow-right text-primary"></i> Keep resume to a strict 1-page layout for undergraduate placement drives.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

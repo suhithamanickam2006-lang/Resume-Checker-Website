@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Campus Placement Cell | Automated Resume Reviewer{% endblock %}</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Placement Cell Notification Bar -->
+    <div class="top-announcement-bar">
+        <div class="container announcement-content">
+            <span><i class="fa-solid fa-graduation-cap"></i> <strong>Campus Placement Season 2026:</strong> Students must achieve <strong>80%+ ATS score</strong> for Tier-1 company shortlists.</span>
+            <div class="top-announcement-links">
+                {% if session.get('tpo_logged_in') %}
+                    <span class="badge badge-success"><i class="fa-solid fa-user-check"></i> Faculty Logged In</span>
+                    <a href="{{ url_for('tpo_logout') }}" class="announcement-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                {% else %}
+                    <a href="{{ url_for('upload') }}" class="announcement-link">Student Scan &rarr;</a>
+                    <span class="sep">|</span>
+                    <a href="{{ url_for('tpo_login') }}" class="announcement-link"><i class="fa-solid fa-lock"></i> Faculty / TPO Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-file-circle-check"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">ResumeIQ</span>
+                    <span class="brand-subtitle">Student Placement Portal</span>
+                </div>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                {% if session.get('tpo_logged_in') %}
+                    <!-- TPO / Faculty Navigation Links -->
+                    <li class="nav-item">
+                        <a href="{{ url_for('tpo_dashboard') }}" class="nav-link {% if request.endpoint == 'tpo_dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-gauge-high"></i> Placement Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('upload') }}" class="nav-link {% if request.endpoint == 'upload' %}active{% endif %}">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Scan Candidate
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('tpo_export_csv') }}" class="nav-link">
+                            <i class="fa-solid fa-file-csv text-success"></i> Export CSV
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('tpo_logout') }}" class="btn btn-outline btn-xs">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <!-- Student Navigation Links (Strictly Student Focused) -->
+                    <li class="nav-item">
+                        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                            <i class="fa-solid fa-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('upload') }}" class="nav-link {% if request.endpoint == 'upload' %}active{% endif %}">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Resume
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('student_lookup') }}" class="nav-link {% if request.endpoint == 'student_lookup' %}active{% endif %}">
+                            <i class="fa-solid fa-magnifying-glass"></i> Find My Scores
+                        </a>
+                    </li>
+                    <li class="nav-item cta-item">
+                        <a href="{{ url_for('upload') }}" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-bolt"></i> Free Scan
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Flash Alert Messages -->
+    <div class="container flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div class="alert-icon">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'danger' %}
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                        </div>
+                        <div class="alert-text">{{ message }}</div>
+                        <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Dynamic Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Placement Cell Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-col brand-col">
+                <div class="brand-logo footer-logo">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-file-circle-check"></i>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title">ResumeIQ</span>
+                        <span class="brand-subtitle">Training & Placement Cell</span>
+                    </div>
+                </div>
+                <p class="footer-description">
+                    Dual-portal university placement system: self-service resume reviews for students & consolidated batch recruitment analytics for placement officers.
+                </p>
+                <div class="footer-badges">
+                    <span class="badge badge-tech"><i class="fa-brands fa-python"></i> Python Flask</span>
+                    <span class="badge badge-tech"><i class="fa-solid fa-database"></i> MySQL</span>
+                    <span class="badge badge-tech"><i class="fa-solid fa-spell-check"></i> LanguageTool</span>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Student Portal</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}"><i class="fa-solid fa-chevron-right"></i> Home Overview</a></li>
+                    <li><a href="{{ url_for('upload') }}"><i class="fa-solid fa-chevron-right"></i> Upload Resume (PDF)</a></li>
+                    <li><a href="{{ url_for('student_lookup') }}"><i class="fa-solid fa-chevron-right"></i> Check My Past Scores</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Placement Cell (TPO)</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('tpo_login') }}"><i class="fa-solid fa-lock"></i> Officer Portal Login</a></li>
+                    <li><a href="{{ url_for('tpo_dashboard') }}"><i class="fa-solid fa-chart-line"></i> Batch Placement Analytics</a></li>
+                    <li><a href="{{ url_for('tpo_export_csv') }}"><i class="fa-solid fa-file-excel"></i> Export Student Scores (CSV)</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Placement Support</h4>
+                <p class="support-text">Questions regarding campus recruitment drives or company standards?</p>
+                <div class="contact-card">
+                    <i class="fa-solid fa-envelope"></i> placement@college.edu
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-content">
+                <p>&copy; 2026 College Training & Placement Cell. All rights reserved.</p>
+                <p class="powered-by">Powered by Python + Flask + MySQL + PyMuPDF</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Script -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Student Resume | Placement Cell Reviewer{% endblock %}
+
+{% block content %}
+<section class="upload-page-section">
+    <div class="container upload-layout-container">
+        
+        <div class="upload-form-wrapper">
+            <div class="form-header">
+                <div class="form-header-badge">
+                    <i class="fa-solid fa-file-arrow-up"></i> PDF Diagnostic Tool
+                </div>
+                <h1 class="page-title">Submit Resume for Placement Review</h1>
+                <p class="page-subtitle">Upload your resume in standard PDF format. Our algorithm will parse sections, detect grammar issues, and benchmark your ATS compatibility score.</p>
+            </div>
+
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" id="resumeUploadForm" class="resume-form">
+                
+                <!-- Student Metadata Accordion / Row -->
+                <div class="form-card">
+                    <h3 class="card-section-title"><i class="fa-solid fa-user-graduate"></i> Student Placement Details</h3>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="roll_number" class="form-label">Roll Number / Student ID <span class="text-danger">*</span></label>
+                            <input type="text" id="roll_number" name="roll_number" class="form-control" placeholder="e.g. 22CS1045" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="target_role" class="form-label">Target Placement Role <span class="text-danger">*</span></label>
+                            <select id="target_role" name="target_role" class="form-select">
+                                <option value="Software Engineer" selected>Software Engineer</option>
+                                <option value="Full Stack Developer">Full Stack Developer</option>
+                                <option value="Data Scientist / AI Engineer">Data Scientist / AI Engineer</option>
+                                <option value="DevOps / Cloud Engineer">DevOps / Cloud Engineer</option>
+                                <option value="Frontend Developer">Frontend Developer</option>
+                                <option value="Backend Developer">Backend Developer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="branch" class="form-label">Department / Branch</label>
+                            <select id="branch" name="branch" class="form-select">
+                                <option value="Computer Science & Engineering" selected>Computer Science & Engineering</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+                                <option value="Electronics & Communication">Electronics & Communication</option>
+                                <option value="Electrical & Electronics">Electrical & Electronics</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Master of Computer Applications (MCA)">Master of Computer Applications (MCA)</option>
+                                <option value="Other">Other Branch</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="graduation_year" class="form-label">Graduation Year</label>
+                            <select id="graduation_year" name="graduation_year" class="form-select">
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2025">2025</option>
+                                <option value="2028">2028</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name <small class="text-muted">(Optional - auto-extracted if blank)</small></label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Alex Johnson">
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address <small class="text-muted">(Optional - auto-extracted if blank)</small></label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="e.g. alex.j@college.edu">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drag & Drop Upload Card -->
+                <div class="form-card">
+                    <h3 class="card-section-title"><i class="fa-solid fa-file-pdf"></i> Upload PDF Resume</h3>
+                    
+                    <div class="dropzone-area" id="dropzoneArea">
+                        <input type="file" id="resume_file" name="resume_file" accept=".pdf,application/pdf" class="file-input-hidden" required>
+                        <div class="dropzone-inner" id="dropzoneInner">
+                            <div class="dropzone-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <h4 class="dropzone-title">Drag & drop your PDF resume here</h4>
+                            <p class="dropzone-desc">or <span class="browse-link">browse from your computer</span></p>
+                            <div class="dropzone-limits">
+                                <span class="badge badge-subtle"><i class="fa-solid fa-file-lines"></i> PDF Format Only</span>
+                                <span class="badge badge-subtle"><i class="fa-solid fa-weight-scale"></i> Max 16MB</span>
+                            </div>
+                        </div>
+
+                        <!-- Selected File Status Box -->
+                        <div class="selected-file-box d-none" id="selectedFileBox">
+                            <div class="selected-file-info">
+                                <i class="fa-solid fa-file-pdf pdf-file-icon"></i>
+                                <div class="file-details">
+                                    <h5 class="file-name" id="selectedFileName">resume.pdf</h5>
+                                    <span class="file-size" id="selectedFileSize">0 KB</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" id="btnRemoveFile" title="Remove file">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-submit-container">
+                    <button type="submit" class="btn btn-primary btn-xl w-100" id="btnSubmit">
+                        <i class="fa-solid fa-bolt"></i> Run Automated ATS Diagnostic
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar Guidelines -->
+        <div class="upload-sidebar">
+            <div class="sidebar-card">
+                <h4 class="sidebar-title"><i class="fa-solid fa-lightbulb text-warning"></i> ATS Optimization Tips</h4>
+                <ul class="tips-list">
+                    <li>
+                        <i class="fa-solid fa-circle-check text-success"></i>
+                        <div><strong>Standard Section Headers:</strong> Use common titles like <em>Education</em>, <em>Technical Skills</em>, <em>Projects</em>, and <em>Experience</em>.</div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-circle-check text-success"></i>
+                        <div><strong>Include Active Links:</strong> Ensure LinkedIn and GitHub profiles are clickable and formatted correctly.</div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-circle-check text-success"></i>
+                        <div><strong>Action Verbs + Metrics:</strong> Start bullet points with verbs (e.g. <em>Engineered</em>, <em>Optimized by 35%</em>).</div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-circle-check text-success"></i>
+                        <div><strong>Single-Column Layout:</strong> Avoid heavy multi-column tables, text boxes, or embedded image graphics that confuse parsers.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-card placement-banner-card">
+                <div class="banner-inner">
+                    <i class="fa-solid fa-award banner-icon"></i>
+                    <h4>Placement Cell Quality Standards</h4>
+                    <p>Resumes scoring <strong>80% or above</strong> are automatically marked as <em>Placement Ready</em> for Tier-1 company registration.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Processing / Loading Overlay Modal -->
+<div class="loading-overlay d-none" id="loadingOverlay">
+    <div class="loading-card">
+        <div class="loading-spinner"></div>
+        <h3 class="loading-title">Analyzing Resume with AI & ATS Engine</h3>
+        <p class="loading-desc">Please wait a moment while we parse text, run grammar diagnostics, and generate your placement score...</p>
+        
+        <div class="loading-steps" id="loadingSteps">
+            <div class="step-line active" id="step1"><i class="fa-solid fa-circle-notch fa-spin"></i> Extracting PDF text with PyMuPDF...</div>
+            <div class="step-line" id="step2"><i class="fa-regular fa-circle"></i> Identifying contact info & key sections...</div>
+            <div class="step-line" id="step3"><i class="fa-regular fa-circle"></i> Detecting technical skills & action verbs...</div>
+            <div class="step-line" id="step4"><i class="fa-regular fa-circle"></i> Running LanguageTool grammar diagnostics...</div>
+            <div class="step-line" id="step5"><i class="fa-regular fa-circle"></i> Storing records to MySQL database...</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}My Placement Resume Reports | Student Portal{% endblock %}
+
+{% block content %}
+<section class="lookup-section">
+    <div class="container">
+        
+        <div class="lookup-hero-card">
+            <div class="form-header-badge">
+                <i class="fa-solid fa-graduation-cap"></i> Student Self-Service Portal
+            </div>
+            <h1 class="page-title">Find Your Evaluated Resume Reports</h1>
+            <p class="page-subtitle">Enter your College Roll Number / Student ID to retrieve your previous ATS diagnostic scores and feedback.</p>
+
+            <form action="{{ url_for('student_lookup') }}" method="POST" class="lookup-form">
+                <div class="lookup-input-group">
+                    <input type="text" name="roll_number" class="form-control lookup-input" placeholder="Enter your Roll Number (e.g. 22CS1045 or STU-2026-001)" value="{{ searched_roll }}" required autofocus>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search My Reports
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if searched_roll %}
+        <div class="lookup-results-wrapper">
+            <h3 class="section-title-sm mb-3">
+                <i class="fa-solid fa-file-lines text-primary"></i> Submissions for Roll Number: <strong>{{ searched_roll }}</strong>
+            </h3>
+
+            {% if resumes %}
+                <div class="history-table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Target Role</th>
+                                <th>ATS Score</th>
+                                <th>Status</th>
+                                <th>Evaluated On</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in resumes %}
+                            <tr>
+                                <td class="font-semibold"><i class="fa-solid fa-file-pdf text-danger"></i> {{ r.file_name }}</td>
+                                <td><span class="category-tag">{{ r.target_role }}</span></td>
+                                <td>
+                                    <strong class="{% if r.ats_score >= 80 %}text-success{% elif r.ats_score >= 60 %}text-warning{% else %}text-danger{% endif %} font-bold">
+                                        {{ r.ats_score }}%
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if r.ats_score >= 80 %}
+                                        <span class="badge badge-success"><i class="fa-solid fa-check"></i> Placement Ready</span>
+                                    {% elif r.ats_score >= 60 %}
+                                        <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Good</span>
+                                    {% else %}
+                                        <span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Needs Polish</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted text-sm">{{ r.upload_timestamp }}</td>
+                                <td>
+                                    <a href="{{ url_for('result', resume_id=r.resume_id) }}" class="btn btn-primary btn-xs">
+                                        <i class="fa-solid fa-gauge-high"></i> View My Full Report
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state-card">
+                    <i class="fa-solid fa-file-circle-xmark empty-icon text-muted"></i>
+                    <h4>No Submissions Found for Roll Number "{{ searched_roll }}"</h4>
+                    <p>You haven't uploaded a resume under this roll number yet. Upload your PDF now to get your ATS report.</p>
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary mt-3">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Resume Now
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

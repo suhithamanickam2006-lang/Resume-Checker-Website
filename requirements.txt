@@ -1,0 +1,8 @@
+Flask==3.1.0
+python-dotenv==1.0.1
+mysql-connector-python==9.1.0
+PyMuPDF==1.25.1
+pdfplumber==0.11.5
+language-tool-python==2.8.1
+reportlab==4.2.5
+gunicorn==23.0.0

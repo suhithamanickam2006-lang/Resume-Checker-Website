@@ -1,0 +1,10 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+placement_cell.db
+uploads/*
+!uploads/.gitkeep
+static-site/
+*.log

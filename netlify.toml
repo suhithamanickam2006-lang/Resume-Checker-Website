@@ -1,0 +1,8 @@
+[build]
+  publish = "static"
+
+[[redirects]]
+  from = "/*"
+  to = "https://REPLACE_WITH_YOUR_BACKEND_URL/:splat"
+  status = 200
+  force = true

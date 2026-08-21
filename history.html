@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Cell Archive | Evaluated Student Resumes{% endblock %}
+
+{% block content %}
+<section class="history-page-section">
+    <div class="container">
+        
+        <div class="page-header-row">
+            <div>
+                <div class="form-header-badge">
+                    <i class="fa-solid fa-database"></i> Placement Cell Database
+                </div>
+                <h1 class="page-title">Evaluated Student Resumes</h1>
+                <p class="page-subtitle">Centralized archive of all student resumes scanned and stored in MySQL.</p>
+            </div>
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Evaluate New Resume
+            </a>
+        </div>
+
+        <div class="history-table-container">
+            {% if resumes %}
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Student Name</th>
+                            <th>Branch</th>
+                            <th>Target Role</th>
+                            <th>ATS Score</th>
+                            <th>Status</th>
+                            <th>Evaluated On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in resumes %}
+                        <tr>
+                            <td class="font-bold text-primary">{{ r.roll_number }}</td>
+                            <td class="font-semibold">{{ r.name }}</td>
+                            <td>{{ r.branch }}</td>
+                            <td><span class="category-tag">{{ r.target_role }}</span></td>
+                            <td>
+                                <strong class="{% if r.ats_score >= 80 %}text-success{% elif r.ats_score >= 60 %}text-warning{% else %}text-danger{% endif %} font-bold">
+                                    {{ r.ats_score }}%
+                                </strong>
+                            </td>
+                            <td>
+                                {% if r.ats_score >= 80 %}
+                                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Ready</span>
+                                {% elif r.ats_score >= 60 %}
+                                    <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Good</span>
+                                {% else %}
+                                    <span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Needs Work</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted text-sm">{{ r.upload_timestamp }}</td>
+                            <td>
+                                <a href="{{ url_for('result', resume_id=r.resume_id) }}" class="btn btn-outline btn-xs">
+                                    <i class="fa-solid fa-eye"></i> View Report
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state-card">
+                    <i class="fa-solid fa-folder-open empty-icon text-muted"></i>
+                    <h4>No Resumes Evaluated Yet</h4>
+                    <p>Start by uploading a student's PDF resume to see automated diagnostics and scores stored here.</p>
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary mt-3">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload First Resume
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}
