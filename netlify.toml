@@ -1,9 +1,8 @@
 [build]
-  publish = "public"
-  command = "mkdir -p public"
+  publish = "."
 
 [[redirects]]
   from = "/*"
-  to = "https://resume-checker-website.onrender.com/:splat"
+  to = "https://resume-checker-website-1.onrender.com/:splat"
   status = 200
   force = true

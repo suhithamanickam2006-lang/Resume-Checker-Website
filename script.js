@@ -157,7 +157,7 @@ function initFormSubmission() {
             { id: 'step2', text: 'Identifying contact info & key sections...', delay: 800 },
             { id: 'step3', text: 'Detecting technical skills & action verbs...', delay: 1600 },
             { id: 'step4', text: 'Running LanguageTool grammar diagnostics...', delay: 2400 },
-            { id: 'step5', text: 'Storing records to MySQL database...', delay: 3200 }
+            { id: 'step5', text: 'Saving analysis results...', delay: 3200 }
         ];
 
         steps.forEach((step, index) => {

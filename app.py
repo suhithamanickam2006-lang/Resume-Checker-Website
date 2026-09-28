@@ -5,7 +5,7 @@ import io
 from functools import wraps
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, jsonify, session, Response, send_file
+    flash, jsonify, session, Response, send_file, send_from_directory
 )
 from werkzeug.utils import secure_filename
 
@@ -19,8 +19,15 @@ from database import (
 from parser import parse_resume
 from analyzer import analyze_complete_resume
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.', static_folder=None)
 app.config.from_object(Config)
+
+
+@app.route('/static/<path:filename>')
+def static(filename):
+    if filename not in {'style.css', 'script.js'}:
+        return '', 404
+    return send_from_directory(app.root_path, filename)
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -13,15 +13,7 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
     ALLOWED_EXTENSIONS = {'pdf'}
     
-    # MySQL Database Configuration
-    MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
-    MYSQL_PORT = int(os.getenv('MYSQL_PORT', 3306))
-    MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', '')
-    MYSQL_DB = os.getenv('MYSQL_DB', 'placement_cell_db')
-    
-    # SQLite Fallback Mode (active only if MySQL server is offline)
-    ENABLE_SQLITE_FALLBACK = os.getenv('ENABLE_SQLITE_FALLBACK', 'true').lower() == 'true'
+    # Local SQLite database
     SQLITE_DB_PATH = os.path.join(BASE_DIR, 'placement_cell.db')
     
     # Placement Cell / TPO Admin Credentials
